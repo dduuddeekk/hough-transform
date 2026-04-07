@@ -3,18 +3,15 @@ import cv2
 import numpy as np
 import sys
 
-# 1. MENDAPATKAN DAFTAR GAMBAR DI DIREKTORI
 script_dir = os.path.dirname(os.path.abspath(__file__))
 valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp')
 
-# Mencari semua file dengan ekstensi gambar di folder yang sama dengan script
 image_files = [f for f in os.listdir(script_dir) if f.lower().endswith(valid_extensions)]
 
 if not image_files:
     print("Tidak ada file gambar ditemukan di direktori ini.")
     sys.exit()
 
-# Menampilkan daftar gambar untuk dipilih
 print("=== DAFTAR GAMBAR ===")
 for i, file_name in enumerate(image_files):
     print(f"{i + 1}. {file_name}")
@@ -28,7 +25,6 @@ except ValueError:
     print("Input harus berupa angka.")
     sys.exit()
 
-# Membaca gambar yang dipilih
 image_file = os.path.join(script_dir, image_files[img_choice])
 img = cv2.imread(image_file)
 
@@ -36,7 +32,6 @@ if img is None:
     print("Gagal membaca gambar.")
     sys.exit()
 
-# 2. MENU PILIHAN JENIS DETEKSI
 print("\n=== PILIH JENIS DETEKSI ===")
 print("1. Hough Transform - Garis")
 print("2. Hough Transform - Lingkaran")
@@ -48,13 +43,11 @@ except ValueError:
     print("Input harus berupa angka.")
     sys.exit()
 
-# Pre-processing dasar
 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 img_blur = cv2.GaussianBlur(img_gray, (3, 3), 0)
 img_result = img.copy()
 window_title = ""
 
-# 3. PROSES BERDASARKAN PILIHAN
 if det_choice == 1:
     edges = cv2.Canny(img_blur, 50, 150, apertureSize=3)
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=100, minLineLength=100, maxLineGap=10)
@@ -67,8 +60,12 @@ if det_choice == 1:
 
 elif det_choice == 2:
     circles = cv2.HoughCircles(
-        img_blur, cv2.HOUGH_GRADIENT, dp=1, minDist=20,
-        param1=50, param2=30, minRadius=0, maxRadius=0
+        img_blur, cv2.HOUGH_GRADIENT, dp=1, 
+        minDist=60,
+        param1=100,
+        param2=60,
+        minRadius=20,
+        maxRadius=150
     )
     
     if circles is not None:
@@ -92,8 +89,6 @@ else:
     print("Pilihan deteksi tidak valid. Silakan jalankan ulang script.")
     sys.exit()
 
-# 4. MENAMPILKAN HASIL
-# Hanya memunculkan gambar asli dan 1 gambar hasil sesuai pilihan
 cv2.imshow('Gambar Asli', img)
 cv2.imshow(window_title, img_result)
 
