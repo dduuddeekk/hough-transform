@@ -48,14 +48,19 @@ img_blur = cv2.GaussianBlur(img_gray, (3, 3), 0)
 img_result = img.copy()
 window_title = ""
 
+edges = None 
+img_lines_only = np.zeros_like(img)
+
 if det_choice == 1:
     edges = cv2.Canny(img_blur, 50, 150, apertureSize=3)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=100, minLineLength=100, maxLineGap=10)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=80, minLineLength=50, maxLineGap=1000)
     
     if lines is not None:
         for line in lines:
             x1, y1, x2, y2 = line[0]
             cv2.line(img_result, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.line(img_lines_only, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            
     window_title = 'Hasil - Deteksi Garis (Hough)'
 
 elif det_choice == 2:
@@ -91,6 +96,14 @@ else:
 
 cv2.imshow('Gambar Asli', img)
 cv2.imshow(window_title, img_result)
+cv2.imshow('Grayscale', img_gray)
+cv2.imshow('Blurred', img_blur)
+
+if edges is not None:
+    cv2.imshow('Canny Edges', edges)
+
+if det_choice == 1:
+    cv2.imshow('Hanya Garis (Lines)', img_lines_only)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
